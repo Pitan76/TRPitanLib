@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "trpitanlib-mc1204",
+  "version": "${version}",
+  "name": "TRPitanLib for 1.20.3/4",
+  "description": "チャット上でローマ字を日本語へ変換します。",
+  "authors": [
+    "Pitan"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/trpitanlib",
+    "sources": "https://github.com/Pitan76/TRPitanLib",
+    "issues": "https://github.com/Pitan76/TRPitanLib/issues"
+  },
+
+  "license": "LGPL-3.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ml.pkom.trpitanlib.mc1204.TRPitanLib"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "trpitanlib-mc1204.mixins.json",
+      "environment": "*"
+    }
+  ],
+  "depends": {
+    "minecraft": ["1.20.3", "1.20.4"]
+  },
+  "custom": {
+    "modmenu": {
+      "parent": "trpitanlib"
+    }
+  }
+}

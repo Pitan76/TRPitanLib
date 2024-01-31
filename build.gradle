@@ -1,0 +1,175 @@
+import com.modrinth.minotaur.dependencies.ModDependency
+
+plugins {
+	id 'fabric-loom' version '1.1-SNAPSHOT'
+	id 'maven-publish'
+	id 'com.matthewprenger.cursegradle' version '1.+'
+	id "com.modrinth.minotaur" version "2.+"
+}
+
+allprojects {
+	apply plugin: "maven-publish"
+	apply plugin: "fabric-loom"
+
+	version = rootProject.mod_version
+	group = rootProject.maven_group
+
+
+	java {
+		toolchain {
+			// lwjgl2 works with Adoptium
+			languageVersion = JavaLanguageVersion.of(17)
+			vendor = JvmVendorSpec.ADOPTIUM
+		}
+		withSourcesJar()
+	}
+
+	tasks.withType(JavaCompile).configureEach {
+		it.options.release.set(8)
+	}
+
+	tasks.withType(JavaExec).configureEach {
+		it.javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+	}
+
+	repositories {
+		maven { url = "https://maven.fabricmc.net/" }
+		maven { url 'https://jitpack.io' }
+		maven { url "https://maven.shedaniel.me/" }
+		maven { url "https://maven.pitan76.net/" }
+		maven { url "https://maven.architectury.dev/" }
+	}
+
+	dependencies {
+		modImplementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+	}
+
+	processResources {
+		inputs.property "version", rootProject.version
+		filteringCharset "UTF-8"
+
+		filesMatching("fabric.mod.json") {
+			expand "version": rootProject.version
+		}
+	}
+
+}
+
+subprojects {
+	dependencies {
+		implementation(rootProject) {
+			exclude group: "net.fabricmc", module: "fabric-loader"
+		}
+	}
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+			}
+		}
+
+		repositories {
+		}
+	}
+}
+
+subprojects.each {
+	remapJar.dependsOn "${it.path}:remapJar"
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+	mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+
+	subprojects.each {
+		include project("${it.name}:")
+	}
+}
+
+def targetJavaVersion = 8
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.options.release = targetJavaVersion
+
+	options.release = 8
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+	options.release = 8
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${rootProject.archivesBaseName}" }
+	}
+}
+
+curseforge {
+	if (System.getenv("CURSEFORGE_TOKEN") != null) {
+		apiKey = System.getenv("CURSEFORGE_TOKEN")
+		project {
+			id = '898169'
+			changelog = 'fix'
+			releaseType = 'release'
+			addGameVersion '1.16'
+			addGameVersion '1.16.1'
+			addGameVersion '1.16.2'
+			addGameVersion '1.16.3'
+			addGameVersion '1.16.4'
+			addGameVersion '1.16.5'
+			addGameVersion '1.17'
+			addGameVersion '1.17.1'
+			addGameVersion '1.18'
+			addGameVersion '1.18.1'
+			addGameVersion '1.18.2'
+			addGameVersion '1.19'
+			addGameVersion '1.19.1'
+			addGameVersion '1.19.2'
+			addGameVersion '1.19.3'
+			addGameVersion '1.19.4'
+			addGameVersion '1.20'
+			addGameVersion '1.20.1'
+			addGameVersion '1.20.2'
+			addGameVersion '1.20.3'
+			addGameVersion '1.20.4'
+			addGameVersion "Fabric"
+			relations {
+				requiredDependency 'fabric-api'
+				requiredDependency 'mcpitanlibarch'
+			}
+
+			mainArtifact(remapJar)
+		}
+		options {
+			forgeGradleIntegration = false
+		}
+	}
+}
+
+import com.modrinth.minotaur.dependencies.ModDependency
+
+modrinth {
+	if (System.getenv("MODRINTH_TOKEN") != null) {
+		token = System.getenv("MODRINTH_TOKEN")
+		projectId = 'HXOPqdYj'
+		versionNumber = project.mod_version
+		uploadFile = remapJar
+		gameVersions = ['1.16', '1.16.1', '1.16.2', '1.16.3', '1.16.4', '1.16.5', '1.17', '1.17.1', '1.18', '1.18.1', '1.18.2', '1.19', '1.19.1', '1.19.2', '1.19.3', '1.19.4', '1.20', '1.20.1', '1.20.2', '1.20.3', '1.20.4']
+		versionType = 'release'
+		loaders = ['fabric']
+		changelog = 'fix'
+		dependencies = [
+				new ModDependency('P7dR8mSH', 'required'), // Fabric API
+				new ModDependency('uNRoUnGT', 'required')  // MCPitanLibarch
+		]
+	}
+}
+
+task publishToModSites {
+	publishToModSites.dependsOn modrinth
+	publishToModSites.dependsOn curseforge
+}

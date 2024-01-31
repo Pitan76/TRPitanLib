@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "trpitanlib",
+  "version": "${version}",
+  "name": "TRPitanLib",
+  "description": "",
+  "authors": [
+    "Pitan"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/trpitanlib",
+    "sources": "https://github.com/Pitan76/TRPitanLib",
+    "issues": "https://github.com/Pitan76/TRPitanLib/issues"
+  },
+
+  "license": "MIT",
+  "environment": "*",
+  "depends": {
+    "minecraft": ["1.16.5", "1.16.4"]
+  },
+  "custom": {
+    "modmenu": {
+      "parent": "trpitanlib"
+    }
+  }
+}
